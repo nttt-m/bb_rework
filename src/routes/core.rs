@@ -1,11 +1,9 @@
 use crate::{
     db::DB,
-    routes::{with_db, json_body},
-    reply::reply
+    middleware::data::{json_body, with_db},
 };
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set};
 use serde::{Deserialize, Serialize};
-use std::convert::Infallible;
 use warp::Filter;
 
 #[derive(Deserialize, Serialize)]
@@ -37,8 +35,9 @@ fn login(db: DB) {
         .and(warp::path::end())
         .and(warp::post())
         .and(with_db(db))
-        .and(json_body::<LoginDTO>())
-        .and_then(do_login);
+        .and(json_body::<LoginDTO>());
+        // .and_then();
+        unimplemented!();
 }
 
 pub async fn get_by_uname(uname: String, db: DB) -> Option<[String; 3]> {
@@ -94,25 +93,4 @@ pub async fn create_session(id: i32, db: DB) -> anyhow::Result<String> {
             Err(e.into())
         }
     }
-}
-
-async fn do_login(db: DB, dto: LoginDTO) -> Result<impl warp::Reply, Infallible> {
-    // if let Some(user) = get_by_uname(dto.username, db).await {
-    //     if user[2] == dto.password {
-    //         if let Some(uid) = get_id_by_auth_id(i32::from_str_radix(&user[0], 10).unwrap(), db).await {
-    //             let reply = warp::reply::with_status(warp::reply, warp::http::StatusCode::FOUND);
-    //             match create_session(uid, db).await {
-    //                 Ok(uuid) => Ok(warp::reply::with_header(warp::reply::with_header("Set-Cookie", format!("{}, {}", uid, uuid)), "Location", "http://localhost/")),
-    //                 Err(e) => crate::reply::reply(StatusCode::INTERNAL_SERVER_ERROR, Some(Err(&e)))
-    //             }
-    //         } else {
-    //             reply(StatusCode::NOT_FOUND, None)
-    //         }
-    //     } else {
-    //         reply(StatusCode::NOT_FOUND, None)
-    //     }
-    // } else {
-    //     reply(StatusCode::NOT_FOUND, None)
-    // }
-    unimplemented!()
 }

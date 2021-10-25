@@ -15,7 +15,9 @@ use warp::Filter;
 
 mod db;
 mod dtos;
+mod handlers;
 mod logger;
+mod middleware;
 mod models;
 mod reply;
 mod routes;
