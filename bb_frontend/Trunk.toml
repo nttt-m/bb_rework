@@ -1,0 +1,7 @@
+[serve]
+# The port to serve on.
+port = 3300
+# Open a browser tab once the initial build is complete.
+open = false
+# Disable auto-reload of the web app.
+no_autoreload = false

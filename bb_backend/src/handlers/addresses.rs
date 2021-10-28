@@ -1,22 +1,24 @@
-use crate::dtos::employees::{CreateEmployeeDTO, UpdateEmployeeDTO};
+use crate::{
+    db::DB,
+    dtos::addresses::{CreateAddressDTO, UpdateAddressDTO},
+    middleware::sessions::Token,
+    models::addresses::{ActiveModel, Entity},
+    reply::reply
+};
 use sea_orm::{Set, ActiveModelTrait, EntityTrait};
 use std::convert::Infallible;
-use crate::models::employees::{ActiveModel, Entity};
-use crate::db::DB;
-use crate::reply::reply;
-use crate::middleware::sessions::Token;
 use warp::http::StatusCode;
-pub async fn create(db: DB, _: Token, dto: CreateEmployeeDTO) -> Result<impl warp::Reply, Infallible> {
-    let emp = ActiveModel {
-        first_name: Set(dto.first_name),
-        last_name: Set(dto.last_name),
-        position: Set(dto.position),
-        address: Set(dto.address),
-        auth: Set(dto.auth),
-        contact_number: Set(dto.contact_number),
+pub async fn create(db: DB, _: Token, dto: CreateAddressDTO) -> Result<impl warp::Reply, Infallible> {
+    let addr = ActiveModel {
+        house_name_number: Set(dto.house_name_number),
+        street: Set(dto.street),
+        town_city: Set(dto.town_city),
+        region: Set(dto.region),
+        postal_code: Set(dto.postal_code),
+        country: Set(dto.country),
         ..Default::default()
     };
-    match emp.insert(db.conn.as_ref()).await {
+    match addr.insert(db.conn.as_ref()).await {
         Ok(r) => {
             reply(StatusCode::CREATED, Some(Ok(&r)))
         },
@@ -26,8 +28,8 @@ pub async fn create(db: DB, _: Token, dto: CreateEmployeeDTO) -> Result<impl war
     }
 }
 pub async fn read_one_by_id(id: i32, db: DB, _: Token) -> Result<impl warp::Reply, Infallible> {
-    let emp = Entity::find_by_id(id).one(db.conn.as_ref()).await;
-    match emp {
+    let addr = Entity::find_by_id(id).one(db.conn.as_ref()).await;
+    match addr {
         Ok(a) => {
             match &a {
                 Some(b) => {
@@ -44,38 +46,38 @@ pub async fn read_one_by_id(id: i32, db: DB, _: Token) -> Result<impl warp::Repl
     }
 }
 pub async fn read_all(db: DB, _: Token) -> Result<impl warp::Reply, Infallible> {
-    let emp = Entity::find().all(db.conn.as_ref()).await;
-    match emp {
+    let addr = Entity::find().all(db.conn.as_ref()).await;
+    match addr {
         Ok(a) => {
             reply(StatusCode::OK, Some(Ok(&a)))
         }
         Err(e) => reply(StatusCode::INTERNAL_SERVER_ERROR, Some(Err(&e)))
     }
 }
-pub async fn update(id: i32, db: DB, _: Token, dto: UpdateEmployeeDTO) -> Result<impl warp::Reply, Infallible> {
-    let emp = Entity::find_by_id(id).one(db.conn.as_ref()).await;
-    match emp {
+pub async fn update(id: i32, db: DB, _: Token, dto: UpdateAddressDTO) -> Result<impl warp::Reply, Infallible> {
+    let addr = Entity::find_by_id(id).one(db.conn.as_ref()).await;
+    match addr {
         Ok(a) => {
             match &a {
                 Some(b) => {
                     let mut m: ActiveModel = b.to_owned().into();
-                    if let Some(first_name) = dto.first_name {
-                        m.first_name = Set(first_name)
+                    if let Some(number) = dto.house_name_number {
+                        m.house_name_number = Set(number)
                     }
-                    if let Some(last_name) = dto.last_name {
-                        m.last_name = Set(last_name)
+                    if let Some(street) = dto.street {
+                        m.street = Set(street.into())
                     }
-                    if let Some(position) = dto.position {
-                        m.position = Set(position)
+                    if let Some(town) = dto.town_city {
+                        m.town_city = Set(town.into())
                     }
-                    if let Some(address) = dto.address {
-                        m.address = Set(address)
+                    if let Some(region) = dto.region {
+                        m.region = Set(region.into())
                     }
-                    if let Some(auth) = dto.auth {
-                        m.auth = Set(auth)
+                    if let Some(post) = dto.postal_code {
+                        m.postal_code = Set(post.into())
                     }
-                    if let Some(contact_number) = dto.contact_number {
-                        m.contact_number = Set(contact_number)
+                    if let Some(country) = dto.country {
+                        m.country = Set(country.into())
                     }
                     let update = m.update(db.conn.as_ref()).await;
                     let res = match update {
@@ -91,8 +93,8 @@ pub async fn update(id: i32, db: DB, _: Token, dto: UpdateEmployeeDTO) -> Result
     }
 }
 pub async fn delete(id: i32, db: DB, _: Token) -> Result<impl warp::Reply, Infallible> {
-    let emp = Entity::find_by_id(id).one(db.conn.as_ref()).await;
-    match emp {
+    let addr = Entity::find_by_id(id).one(db.conn.as_ref()).await;
+    match addr {
         Ok(o) => {
             if let Some(model) = o {
                 let amod: ActiveModel = model.into();
@@ -107,3 +109,5 @@ pub async fn delete(id: i32, db: DB, _: Token) -> Result<impl warp::Reply, Infal
         Err(e) => reply(StatusCode::INTERNAL_SERVER_ERROR, Some(Err(&e)))
     }
 }
+
+// TODO: Get by house_name_number + postal_code + country

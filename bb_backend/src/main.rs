@@ -13,6 +13,7 @@ use std::env;
 use std::process::exit;
 use warp::Filter;
 
+mod crypto;
 mod db;
 mod dtos;
 mod handlers;
