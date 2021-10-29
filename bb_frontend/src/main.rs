@@ -1,20 +1,28 @@
 mod components;
 mod pages;
 
-use crate::{components::navbar::Navbar, pages::home::Home};
+use crate::{
+    components::navbar::Navbar,
+    pages::{employees::Employees, home::Home},
+};
 use yew::prelude::*;
 use yew_router::{Routable, Router};
 
-#[derive(Clone, Routable)]
+#[derive(Clone, Routable, PartialEq, Debug)]
 pub enum Route {
     #[at("/")]
     Home,
+    #[at("/employees")]
+    Employees,
 }
 
 fn switch(routes: &Route) -> Html {
     match routes {
         Route::Home => {
             html! { <Home /> }
+        }
+        Route::Employees => {
+            html! { <Employees /> }
         }
     }
 }
