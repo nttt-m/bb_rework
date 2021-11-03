@@ -3,7 +3,7 @@ use flexi_logger::{
 };
 
 pub fn init_logger() -> Result<LoggerHandle, FlexiLoggerError> {
-    Logger::try_with_env_or_str("trace")?
+    Logger::try_with_env_or_str("info")?
         .log_to_file(FileSpec::default().directory("/var/log/bb-hrms"))
         .write_mode(WriteMode::Async)
         .rotate(

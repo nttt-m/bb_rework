@@ -1,2 +1,6 @@
 /target
 /.idea
+/.vscode
+/Cargo.lock
+/bb_rework.iml
+/bb_frontend/dist
